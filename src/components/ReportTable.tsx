@@ -1,7 +1,8 @@
 import React from 'react';
-import { ReportData, ReportDataItem } from '../types/report';
+import { ReportData, ReportDataItem, ReportField } from '../types/report';
 
 interface ReportTableProps {
+  fields: ReportField[];
   reportData: ReportData | null;
   loading: boolean;
   error: string | null;
@@ -9,6 +10,7 @@ interface ReportTableProps {
 }
 
 const ReportTable: React.FC<ReportTableProps> = ({
+  fields,
   reportData,
   loading,
   error,
@@ -47,6 +49,8 @@ const ReportTable: React.FC<ReportTableProps> = ({
     )
   ).sort(); // Sort keys for consistent display
 
+  console.log('allkeys', allKeys);
+
   const handlePreviousPage = () => {
     if (onPageChange && reportData.pagination.hasPrevPage) {
       onPageChange(reportData.pagination.page - 1);
@@ -65,13 +69,13 @@ const ReportTable: React.FC<ReportTableProps> = ({
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {allKeys.map(key => (
+              {fields.map(field => (
                 <th 
-                  key={key}
+                  key={field?.key}
                   scope="col" 
-                  className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                  className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider"
                 >
-                  {key}
+                  {field?.label || field?.key}
                 </th>
               ))}
             </tr>
