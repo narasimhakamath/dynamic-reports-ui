@@ -142,6 +142,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 reportData={reportData}
                 loading={loading}
                 error={error}
+                reportId={selectedReport?.id}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange} // Pass the page size handler
                 searchable={selectedReport?.searchable || []} // Pass the searchable fields
