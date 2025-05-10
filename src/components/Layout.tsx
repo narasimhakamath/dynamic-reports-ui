@@ -19,20 +19,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // Default page size
   const itemsPerPage = pageSize; // Use pageSize for the API call
+  const [sort, setSort] = useState<string>(''); // Track the current sort query string
 
   useEffect(() => {
     if (selectedReport) {
-      fetchReportData(selectedReport.id, currentPage, pageSize);
+      fetchReportData(selectedReport.id, currentPage, pageSize, sort);
     }
-  }, [selectedReport, currentPage, pageSize]);
+  }, [selectedReport, currentPage, pageSize, sort]);
 
-  const fetchReportData = async (reportId: string, page: number, count: number) => {
+  const fetchReportData = async (reportId: string, page: number, count: number, sortParam: string = '') => {
     setLoading(true);
     setError(null);
 
     try {
       const response = await axios.get<ReportData>(
-        `https://dev.dfl.datanimbus.com/reports/${reportId}?count=${count}&page=${page}`
+        `https://dev.dfl.datanimbus.com/reports/${reportId}?count=${count}&page=${page}&sort=${sortParam}`
       );
 
       // Handle different potential response formats
@@ -82,6 +83,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize); // Update the page size
     setCurrentPage(1); // Reset to the first page
+  };
+
+  const handleSortChange = (sortParam: string) => {
+    setSort(sortParam); // Update the sort state
   };
 
   const toggleSidebar = () => {
@@ -146,6 +151,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange} // Pass the page size handler
                 searchable={selectedReport?.searchable || []} // Pass the searchable fields
+                onSortChange={handleSortChange} // Pass the sort change handler
               />
             </div>
           ) : (

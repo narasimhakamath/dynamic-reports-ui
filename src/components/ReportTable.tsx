@@ -4,47 +4,46 @@ import { ReportData, ReportDataItem, ReportField } from '../types/report';
 interface ReportTableProps {
   fields: ReportField[];
   reportData: ReportData | null;
-  reportId: string; // Add reportId to props
+  reportId: string;
   loading: boolean;
   error: string | null;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
+  onSortChange?: (sort: string) => void; // Add a handler for sort changes
   searchable?: string[];
 }
 
 const ReportTable: React.FC<ReportTableProps> = ({
   fields,
   reportData,
-  reportId, // Destructure reportId
+  reportId,
   loading,
   error,
   onPageChange,
   onPageSizeChange,
+  onSortChange,
   searchable = [],
 }) => {
   const [pageSize, setPageSize] = useState(10);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [sortField, setSortField] = useState<string | null>(null); // Track the current sort field
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | 'none'>('none'); // Track the sort direction
 
-  // Track the current report ID to detect report changes
   const currentReportId = useRef<string | null>(null);
 
   useEffect(() => {
-    // Check if the report ID has changed
     if (currentReportId.current !== reportId) {
-      setSelectedRows(new Set()); // Clear selected rows only on report change
-      currentReportId.current = reportId; // Update the current report ID
+      setSelectedRows(new Set());
+      currentReportId.current = reportId;
     }
-  }, [reportId]); // Depend on reportId instead of reportData
+  }, [reportId]);
 
   const handleRowClick = (rowId: string, event: React.MouseEvent<HTMLTableRowElement>) => {
-    // Check if the user is selecting text
     const selection = window.getSelection();
     if (selection && selection.toString().length > 0) {
-      return; // Do not select the row if text is being highlighted
+      return;
     }
-  
-    // Proceed with row selection logic
     setSelectedRows((prev) => {
       const updated = new Set(prev);
       if (updated.has(rowId)) {
@@ -54,6 +53,31 @@ const ReportTable: React.FC<ReportTableProps> = ({
       }
       return updated;
     });
+  };
+
+  const handleSort = (fieldKey: string, event: React.MouseEvent<HTMLTableCellElement>) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      return; // Do not trigger sort if text is being highlighted
+    }
+
+    if (sortField === fieldKey) {
+      // Cycle through 'asc', 'desc', and 'none'
+      const nextDirection = sortDirection === 'none' ? 'asc' : sortDirection === 'asc' ? 'desc' : 'none';
+      setSortDirection(nextDirection);
+      if (nextDirection === 'none') {
+        setSortField(null); // Clear sort field if direction is 'none'
+        onSortChange && onSortChange(''); // Trigger API call with no sort
+      } else {
+        const sortQuery = nextDirection === 'asc' ? fieldKey : `-${fieldKey}`;
+        onSortChange && onSortChange(sortQuery); // Trigger API call with sort query
+      }
+    } else {
+      // Set new sort field and default to ascending
+      setSortField(fieldKey);
+      setSortDirection('asc');
+      onSortChange && onSortChange(fieldKey); // Trigger API call with ascending sort
+    }
   };
 
   const handleExportSelectedRows = () => {
@@ -158,11 +182,18 @@ const ReportTable: React.FC<ReportTableProps> = ({
             <tr>
               {fields.map((field) => (
                 <th
-                  key={field?.key}
-                  scope="col"
-                  className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider"
+                  key={field.key}
+                  onClick={(event) => handleSort(field.key, event)} // Handle sort on column header click
+                  className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider cursor-pointer"
                 >
-                  {field?.label || field?.key}
+                  <div className="flex items-center space-x-2">
+                    <span>{field.label || field.key}</span>
+                    {sortField === field.key && (
+                      <span>
+                        {sortDirection === 'asc' ? '↑' : sortDirection === 'desc' ? '↓' : ''}
+                      </span>
+                    )}
+                  </div>
                   {searchable.includes(field.key) && (
                     <input
                       type="text"
@@ -178,7 +209,7 @@ const ReportTable: React.FC<ReportTableProps> = ({
             {reportData.data.map((item: ReportDataItem) => (
               <tr
                 key={item._id}
-                onClick={() => handleRowClick(item._id)}
+                onClick={(event) => handleRowClick(item._id, event)}
                 className={`cursor-pointer ${
                   selectedRows.has(item._id) ? 'bg-blue-100 dark:bg-blue-900' : ''
                 }`}
