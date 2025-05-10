@@ -37,7 +37,14 @@ const ReportTable: React.FC<ReportTableProps> = ({
     }
   }, [reportId]); // Depend on reportId instead of reportData
 
-  const handleRowClick = (rowId: string) => {
+  const handleRowClick = (rowId: string, event: React.MouseEvent<HTMLTableRowElement>) => {
+    // Check if the user is selecting text
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      return; // Do not select the row if text is being highlighted
+    }
+  
+    // Proceed with row selection logic
     setSelectedRows((prev) => {
       const updated = new Set(prev);
       if (updated.has(rowId)) {
