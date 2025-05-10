@@ -83,14 +83,12 @@ const ReportTable: React.FC<ReportTableProps> = ({
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {reportData.data.map((item: ReportDataItem) => (
               <tr key={item._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                {allKeys.map(key => (
-                  <td 
-                    key={`${item._id}-${key}`} 
+                {fields.map(field => (
+                  <td
+                    key={`${item._id}-${field.key}`}
                     className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"
                   >
-                    {typeof item[key] === 'object' ? 
-                      JSON.stringify(item[key]) : 
-                      String(item[key] ?? '-')}
+                    {typeof item[field.key] === 'object' ? JSON.stringify(item[field.key]) : String(item[field.key] ?? '-')}
                   </td>
                 ))}
               </tr>
