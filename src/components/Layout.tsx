@@ -17,21 +17,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const [pageSize, setPageSize] = useState(10); // Default page size
+  const itemsPerPage = pageSize; // Use pageSize for the API call
 
   useEffect(() => {
     if (selectedReport) {
-      fetchReportData(selectedReport.id, currentPage);
+      fetchReportData(selectedReport.id, currentPage, pageSize);
     }
-  }, [selectedReport, currentPage]);
+  }, [selectedReport, currentPage, pageSize]);
 
-  const fetchReportData = async (reportId: string, page: number) => {
+  const fetchReportData = async (reportId: string, page: number, count: number) => {
     setLoading(true);
     setError(null);
 
     try {
       const response = await axios.get<ReportData>(
-        `https://dev.dfl.datanimbus.com/reports/${reportId}?count=${itemsPerPage}&page=${page}`
+        `https://dev.dfl.datanimbus.com/reports/${reportId}?count=${count}&page=${page}`
       );
 
       // Handle different potential response formats
@@ -76,6 +77,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize); // Update the page size
+    setCurrentPage(1); // Reset to the first page
   };
 
   const toggleSidebar = () => {
@@ -137,6 +143,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 loading={loading}
                 error={error}
                 onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange} // Pass the page size handler
               />
             </div>
           ) : (
