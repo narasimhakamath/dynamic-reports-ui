@@ -8,6 +8,7 @@ interface ReportTableProps {
   error: string | null;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void; // Callback for page size change
+  searchable?: string[]; // Array of searchable column keys
 }
 
 const ReportTable: React.FC<ReportTableProps> = ({
@@ -17,6 +18,7 @@ const ReportTable: React.FC<ReportTableProps> = ({
   error,
   onPageChange,
   onPageSizeChange,
+  searchable = [], // Default to an empty array if not provided
 }) => {
   const [pageSize, setPageSize] = useState(10); // Default page size
 
@@ -77,6 +79,13 @@ const ReportTable: React.FC<ReportTableProps> = ({
                   className="px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider"
                 >
                   {field?.label || field?.key}
+                  {searchable.includes(field.key) && (
+                    <input
+                      type="text"
+                      placeholder={`Search ${field.label || field.key}`}
+                      className="mt-2 block w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                    />
+                  )}
                 </th>
               ))}
             </tr>
