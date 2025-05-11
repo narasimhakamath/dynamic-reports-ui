@@ -1,17 +1,79 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { CircleDollarSign, Users, ShoppingCart, TrendingUp } from 'lucide-react';
 import StatCard from '../components/StatCard';
-import ActivityCard from '../components/ActivityCard';
-import TasksCard from '../components/TasksCard';
 import Chart from '../components/Chart';
 import Card, { CardHeader, CardContent } from '../components/Card';
 
+interface Widget {
+  id: string;
+  name: string;
+  description: string;
+  type: string; // e.g., 'line', 'bar', etc.
+}
+
+interface WidgetData {
+  id: string;
+  name: string;
+  description: string;
+  data: { xAxis: number; yAxis: string }[];
+}
+
 const Dashboard: React.FC = () => {
-  const revenueData = [4200, 5100, 5800, 7200, 8100, 9600, 9800, 8200, 7800, 9000, 10200, 12000];
-  const revenueLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  
-  const customersData = [380, 420, 490, 520, 560, 610, 630, 650, 700, 720, 750, 780];
-  const customersLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const [widgets, setWidgets] = useState<Widget[]>([]);
+  const [widgetData, setWidgetData] = useState<Record<string, WidgetData>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchWidgets = async () => {
+      try {
+        const response = await axios.get('https://dev.dfl.datanimbus.com/reports/widgets');
+        const widgetsList = Array.isArray(response.data) ? response.data : response.data.widgets || [];
+        setWidgets(widgetsList);
+        setLoading(false);
+
+        // Fetch data for each widget
+        widgetsList.forEach((widget: Widget) => {
+          fetchWidgetData(widget.id);
+        });
+      } catch (err) {
+        console.error('Error fetching widgets:', err);
+        setError('Failed to fetch widgets. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    const fetchWidgetData = async (widgetId: string) => {
+      try {
+        const response = await axios.get(`https://dev.dfl.datanimbus.com/reports/widgets/${widgetId}`);
+        setWidgetData((prev) => ({
+          ...prev,
+          [widgetId]: response.data,
+        }));
+      } catch (err) {
+        console.error(`Error fetching data for widget ${widgetId}:`, err);
+      }
+    };
+
+    fetchWidgets();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-4">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -52,39 +114,52 @@ const Dashboard: React.FC = () => {
         />
       </div>
       
-      {/* Charts row */}
+      {/* Dynamic Widgets */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader title="Revenue" subtitle="Monthly revenue over the past year" />
-          <CardContent>
-            <Chart 
-              data={revenueData} 
-              labels={revenueLabels} 
-              height={240} 
-              lineColor="#3b82f6"
-              fillColor="rgba(59, 130, 246, 0.1)"
-            />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader title="Customers" subtitle="Monthly customer growth" />
-          <CardContent>
-            <Chart 
-              data={customersData} 
-              labels={customersLabels} 
-              height={240} 
-              lineColor="#8b5cf6"
-              fillColor="rgba(139, 92, 246, 0.1)"
-            />
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Bottom row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ActivityCard />
-        <TasksCard />
+        {widgets.map((widget) => {
+          const data = widgetData[widget.id]?.data || [];
+          const labels = data.map((item) => item.yAxis);
+          const values = data.map((item) => item.xAxis);
+
+          return (
+            <Card key={widget.id}>
+              <CardHeader title={widget.name} subtitle={widget.description} />
+              <CardContent>
+                {widget.type === 'LINECHART' && (
+                  <Chart
+                  type="line"
+                    data={values}
+                    labels={labels}
+                    height={240}
+                    lineColor="#3b82f6"
+                    fillColor="rgba(59, 130, 246, 0.1)"
+                  />
+                )}
+                {widget?.type === "BARCHART" && (
+                  <Chart
+                  type="bar"
+                  data={values}
+                  labels={labels}
+                  height={240}
+                  barColor="#3b82f6"
+                  fillColor="rgba(59, 130, 246, 0.1)"
+                />
+                )}
+                {widget?.type === "PIECHART" && (
+                  <Chart
+                  type="pie"
+                  data={values}
+                  labels={labels}
+                  height={240}
+                  pieColors={['#3b82f6', '#f87171', '#34d399', '#fbbf24', '#a78bfa']}
+                  fillColor="rgba(59, 130, 246, 0.1)"
+                  textColor="#000000"
+                />
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
