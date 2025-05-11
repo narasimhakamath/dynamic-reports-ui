@@ -16,7 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ closeSidebar, onReportSelect }) => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get('https://dev.dfl.datanimbus.com/reports/');
+        const response = await axios.get('https://dev.dfl.datanimbus.com/reports/reports');
         setReports(Array.isArray(response.data) ? response.data : response.data.reports || []);
         setLoading(false);
       } catch (err) {

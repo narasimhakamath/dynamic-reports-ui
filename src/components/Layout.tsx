@@ -33,7 +33,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     try {
       const response = await axios.get<ReportData>(
-        `https://dev.dfl.datanimbus.com/reports/${reportId}?count=${count}&page=${page}&sort=${sortParam}`
+        `https://dev.dfl.datanimbus.com/reports/reports/${reportId}?count=${count}&page=${page}&sort=${sortParam}`
       );
 
       // Handle different potential response formats
