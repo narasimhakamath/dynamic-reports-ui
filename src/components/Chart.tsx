@@ -26,6 +26,8 @@ interface ChartProps {
   pieColors?: string[];
   fillColor?: string;
   textColor?: string;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
 }
 
 const RechartsWrapper: FC<ChartProps> = ({
@@ -37,6 +39,8 @@ const RechartsWrapper: FC<ChartProps> = ({
   barColor = '#3b82f6',
   pieColors = ['#3b82f6', '#f87171', '#34d399', '#fbbf24', '#a78bfa'],
   textColor = '#6b7280',
+  xAxisLabel,
+  yAxisLabel,
 }) => {
   const formattedData = data.map((value, index) => ({
     name: labels[index],
@@ -49,8 +53,8 @@ const RechartsWrapper: FC<ChartProps> = ({
         <ResponsiveContainer width="100%" height={height}>
           <LineChart data={formattedData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" stroke={textColor} />
-            <YAxis stroke={textColor} />
+            <XAxis dataKey="name" stroke={textColor} label={xAxisLabel} />
+            <YAxis stroke={textColor} label={yAxisLabel} />
             <Tooltip />
             <Legend />
             <Line type="monotone" dataKey="value" stroke={lineColor} fill={lineColor} />
@@ -62,8 +66,8 @@ const RechartsWrapper: FC<ChartProps> = ({
         <ResponsiveContainer width="100%" height={height}>
           <BarChart data={formattedData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" stroke={textColor} />
-            <YAxis stroke={textColor} />
+            <XAxis dataKey="name" stroke={textColor} label={xAxisLabel} />
+            <YAxis stroke={textColor} label={yAxisLabel} />
             <Tooltip />
             <Legend />
             <Bar dataKey="value" fill={barColor} />

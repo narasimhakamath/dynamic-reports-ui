@@ -137,6 +137,8 @@ const Dashboard: React.FC = () => {
                     labels={labels}
                     height={240}
                     lineColor="#3b82f6"
+                    // xAxisLabel={widget?.xAxisLabel}
+                    // yAxisLabel={widget?.yAxisLabel}
                   />
                 )}
                 {widget?.type === 'BARCHART' && (
@@ -146,6 +148,8 @@ const Dashboard: React.FC = () => {
                     labels={labels}
                     height={240}
                     barColor="#3b82f6"
+                    // xAxisLabel={widget?.xAxisLabel}
+                    // yAxisLabel={widget?.yAxisLabel}
                   />
                 )}
                 {widget?.type === 'PIECHART' && (
