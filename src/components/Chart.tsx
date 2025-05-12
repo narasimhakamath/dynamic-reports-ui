@@ -40,7 +40,7 @@ const CustomTooltip: React.FC<TooltipProps> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip" style={{ backgroundColor: '#f9f9f9', padding: '8px', border: '1px solid #ccc' }}>
-        <p className="label" style={{ color: '#333' }}>{`${label} : ${payload[0].value}`}</p>
+        <p className="label" style={{ color: '#333' }}>{`${label}: ${payload[0].value}`}</p>
         {/* You can add more information here if needed */}
       </div>
     );
@@ -111,7 +111,7 @@ const RechartsWrapper: FC<ChartProps> = ({
                 <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
               ))}
             </Pie>
-            <Tooltip /> {/* Pie chart tooltips are handled differently, see explanation below */}
+            <Tooltip /> {/* Pie chart tooltips are handled differently */}
             <Legend />
           </PieChart>
         </ResponsiveContainer>
