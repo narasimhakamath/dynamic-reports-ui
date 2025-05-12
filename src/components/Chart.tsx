@@ -30,6 +30,25 @@ interface ChartProps {
   yAxisLabel?: string;
 }
 
+interface TooltipProps {
+  active?: boolean;
+  payload?: { name: string; value: number }[];
+  label?: string | number;
+}
+
+const CustomTooltip: React.FC<TooltipProps> = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip" style={{ backgroundColor: '#f9f9f9', padding: '8px', border: '1px solid #ccc' }}>
+        <p className="label" style={{ color: '#333' }}>{`${label} : ${payload[0].value}`}</p>
+        {/* You can add more information here if needed */}
+      </div>
+    );
+  }
+
+  return null;
+};
+
 const RechartsWrapper: FC<ChartProps> = ({
   type,
   data,
@@ -55,7 +74,7 @@ const RechartsWrapper: FC<ChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" stroke={textColor} label={xAxisLabel} />
             <YAxis stroke={textColor} label={yAxisLabel} />
-            <Tooltip />
+            <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Line type="monotone" dataKey="value" stroke={lineColor} fill={lineColor} />
           </LineChart>
@@ -68,7 +87,7 @@ const RechartsWrapper: FC<ChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" stroke={textColor} label={xAxisLabel} />
             <YAxis stroke={textColor} label={yAxisLabel} />
-            <Tooltip />
+            <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Bar dataKey="value" fill={barColor} />
           </BarChart>
@@ -92,7 +111,7 @@ const RechartsWrapper: FC<ChartProps> = ({
                 <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip /> {/* Pie chart tooltips are handled differently, see explanation below */}
             <Legend />
           </PieChart>
         </ResponsiveContainer>
