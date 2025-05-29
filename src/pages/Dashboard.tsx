@@ -1,9 +1,13 @@
+// src/Dashboard.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { CircleDollarSign, Users, ShoppingCart, TrendingUp, RefreshCw } from 'lucide-react';
+// Import the Bot icon here
+import { CircleDollarSign, Users, ShoppingCart, TrendingUp, RefreshCw, Bot } from 'lucide-react'; // <--- ADD Bot here
 import StatCard from '../components/StatCard';
-import RechartsWrapper from '../components/Chart'; // Assuming you named the Recharts component file Chart.tsx
+import RechartsWrapper from '../components/Chart';
 import Card, { CardHeader, CardContent } from '../components/Card';
+import "../Chat.css";
+import ChatWindow from '../components/ChatWindow';
 
 interface Widget {
   id: string;
@@ -30,10 +34,12 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshingWidgetId, setRefreshingWidgetId] = useState<string | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(true); // Type the state
 
   const fetchWidgetData = useCallback(async (widgetId: string) => {
     try {
-      const response = await axios.get(`https://dev.dfl.datanimbus.com/reports/widgets/${widgetId}`);
+      // const response = await axios.get(`https://dev.dfl.datanimbus.com/reports/widgets/${widgetId}`);
+      const response = await axios.get(`http://localhost:3000/widgets/${widgetId}`);
       setWidgetData((prev) => ({
         ...prev,
         [widgetId]: response.data,
@@ -48,7 +54,8 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchWidgets = async () => {
       try {
-        const response = await axios.get('https://dev.dfl.datanimbus.com/reports/widgets');
+        // const response = await axios.get('https://dev.dfl.datanimbus.com/reports/widgets');
+        const response = await axios.get('http://localhost:3000/widgets');
         const widgetsList = Array.isArray(response.data) ? response.data : response.data.widgets || [];
         setWidgets(widgetsList);
         setLoading(false);
@@ -168,6 +175,18 @@ const Dashboard: React.FC = () => {
           );
         })}
       </div>
+      {/* <ChatWindow isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} /> */}
+      {/* <ChatWindow isOpen={isChatOpen} onClose={() => setIsChatOpen(false)}/> */}
+
+        <button className="open-chat-button" onClick={() => setIsChatOpen(!isChatOpen)}>
+        {/* Render the Bot icon directly inside the button */}
+        <Bot size={28} /> {/* Adjust size as needed, 24-32px is good */}
+        {/* You can optionally add text for accessibility if needed, e.g., via an aria-label */}
+        <span className="sr-only">Toggle Chatbot</span> {/* For screen readers */}
+      </button>
+
+      {/* Chat Window */}
+      <ChatWindow isOpen={isChatOpen} onClose={() => setIsChatOpen(false)}/>
     </div>
   );
 };

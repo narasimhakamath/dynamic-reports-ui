@@ -10,7 +10,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/reports': {
-        target: 'https://dev.dfl.datanimbus.com',
+        // target: 'https://dev.dfl.datanimbus.com',
+        target: 'localhost:3000',
         changeOrigin: true,
       },
     },
